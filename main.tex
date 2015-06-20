@@ -69,21 +69,23 @@ hogehoge
 
 hogehoge
 
-\chapter{LXC超入門}
+\chapter{Containers超入門}
 
-Containerまわりの状況とLXCの基本的な使い方
+\section{Containersの世界とLXC、そしてDocker}
 
-\section{Containerの世界とLXC}
+\subsection{昔からあるContainers技術}
+Container技術を取り囲む現在の状況と、それを踏まえた上でのLXCとDockerの根本的な違いについて説明したいと思う。Linux Containers(LXC)は、どうやって我々がアプリケーションを動かしスケールさせるかという問題を変化させる可能性を持っている。Containers技術は、特別新しいものではない。そして、LXCに関して言うと、追加パッチをLinux Kernelに適用させることなく、vanilla Linux Kernel上で稼働させることができる。なお、LXCのVersion1は、長期サポートバージョンであり、5年間サポートされることになる。話が逸れるが、vanilla Linux Kernelとは、Linux作者のLinus Torvalds氏がリリースするプレーンなKernelのことである。それをベースに様々なベンダーが追加で拡張していくのである。また、vanillaという言葉には「普通の、ありきたりな、おもしろみのない」という意味がある。
 
-hogehoge
+話を戻そう。
 
-\subsection{2015年におけるContainerの状況}
+Containers技術は、最近登場した新技術ではない。昔から存在し色んな所で採用されている。FreeBSDにはJailがあり、SolarisにはZoneがある。それに加えて、OpenVZやLinux VServerのようなContainersも存在する。その歴史は、chrootに始まり、FreeBSD Jailを経て、Linux Containers(LXC)に至る。chrootでは、大雑把に言って、ディレクトリーツリーの分離を行っていた。プロセスリスト自体は共有するようなモデルである。chrootのユースケースとしては、開発者向けのテスト/ビルド用環境である。FreeBSD Jailでは、chrootの機能に加えて、プロセスリストとネットワークスタックも分離(というか隔離)された。ユースケースとしては、root権限の一般ユーザへの委譲、またそれに頼る形でのホスティングサービスである。LXCでは、リソース管理テーブルを隔離し、cgroupsによるシステムリソース(CPU、メモリ、ディスクetc)の制御を行えるようになった。これにより、LXCは、軽量な仮想環境と見なすことができるようになった。
 
-hogehoge
+\subsection{なぜ皆Containersに騒いでいるのか}
+Containersは、ホストシステムからアプリケーションのワークロードを隔離、あるいはカプセル化する。Containersを、ホストOS内にあるアプリケーションが実行されているOSと見なすことができ、かつ、それはVirtual Machineのように振る舞うのである。このエミュレーションは、Linux Kernelそれ自体と、様々なディストリビューションとコンテナを使ってアプリケーションを動かすユーザのためにContainers用OSのテンプレートを提供するLXC Projectによって、実現されている。このように、Containers技術が仮想マシンのように振る舞うことが可能になったことが、一気に注目を浴びる原因となったのである。
 
-\subsection{LXCの歴史}
+\subsection{Containersのポータビリティ}
+Containersは、アプリケーションをホストOSから分離、抽象化することで、LXCをまたぐシステム間でのポータビリティをもたらします。
 
-\subsection{LXCの特徴と利点}
 
 \subsection{LXCの仕組み}
 

@@ -93,9 +93,6 @@ LXCは、活発に開発されているがその割にはドキュメントが�
 
 LXCは、Dockerのようなフロントエンドのアプリケーションのためのローレイヤー層なのか、はたまた、DockerがLXC上に構築されたユーザーフレンドリーなフロントエンドなのか？こういった不確かな情報が広く出回っている。コンテナ技術のメリットを享受するために必ずしもDockerを使う必要はない。Dockerはコンテナ利用の一つの選択でしかないのである。
 
-\subsection{LXCの基本操作}
-
-
 \subsection{DockerとLXCでは何が違うのか}
 Docker視点から見たLXCとの違いについて説明する。
 
@@ -105,7 +102,81 @@ Dockerについて言及するエンジニアは、総じてアプリケーシ�
 
 他にもDockerの利点は多く存在するが、主にこのような点により、Dockerは、コンテナそのもの対する見方を変えるきっかけを作った。今まで軽量な仮想マシンとして見られていたコンテナ技術をアプリケーションとしてのコンテナとしてエンジニアに再認識させることに成功したのである。
 
-逆の視点から見てみよう。
+\section{LXCを使い軽量仮想環境を手に入れよう}
+LXCの基本的なコマンドを使ったコンテナ操作を，Ubuntu14.04をベースにした環境を使って説明していきたい。
+
+\subsection{LXCのインストール}
+Ubuntuの最新版であるUbuntu 14.04 LTSでは、LXC 1.0.7がlxcというパッケージ名で提供されている。また、Debian 8 (Jessie) では、LXC 1.0.6のパッケージが提供されている。
+
+インストールは以下のコマンドを叩くだけである。
+
+\begin{lstlisting}
+$ sudo apt-get install lxc
+\end{lstlisting}
+
+\subsection{LXCで仮想環境を立ち上げる}
+LXCによる仮想環境を立ち上げるためには、まずテンプレートと呼ばれる設定ファイルを用いる。デフォルトでメジャーディストリビューションのテンプレートはすでに同梱されているためこちらを利用する。テンプレートは/usr/share/lxc/templatesに配置されている。
+
+\begin{lstlisting}
+$ ls /usr/share/lxc/templates/
+lxc-alpine     lxc-centos    lxc-fedora        lxc-oracle  lxc-ubuntu-cloud
+lxc-altlinux   lxc-cirros    lxc-gentoo        lxc-plamo
+lxc-archlinux  lxc-debian    lxc-openmandriva  lxc-sshd
+lxc-busybox    lxc-download  lxc-opensuse      lxc-ubuntu
+\end{lstlisting}
+
+Ubuntuのテンプレートを用いてtest-container-101という名前のUbuntuのコンテナを立ち上げる。
+
+\begin{lstlisting}
+$ sudo lxc-create -t ubuntu -n test-container-101
+\end{lstlisting}
+
+これでコンテナのrootディレクトリに相当するディレクトリに必要なものがインストールされる。コンテナの場所は以下のディレクトリである。
+
+\begin{lstlisting}
+/var/lib/lxc/<コンテナ名>/
+\end{lstlisting}
+
+そこで、test-container-101のrootfsの中を覗いてみると以下の通りとなる。
+
+\begin{lstlisting}
+$ ls -F /var/lib/lxc/test-container-101/rootfs/
+bin/   dev/  home/  lib64/  mnt/  proc/  run/   srv/  tmp/  var/
+boot/  etc/  lib/   media/  opt/  root/  sbin/  sys/  usr/
+\end{lstlisting}
+
+インストールしたコンテナの起動には以下のコマンドを実行する。
+
+\begin{lstlisting}
+$ sudo lxc-start -n test-container-101 -d
+\end{lstlisting}
+
+-dオプションでデーモンとしてコンテナを起動する。この状態でlxc-consoleコマンドを用いてコンソール接続することでコンテナの内部にログインすることができる。
+
+\begin{lstlisting}
+$ sudo lxc-console -n test-container-101
+\end{lstlisting}
+
+コンテナから抜ける際には、Ctrl+Aを入力してその後Qを押す。また、デフォルトのrootパスワードは以下に保存されている。
+
+\begin{lstlisting}
+/var/lib/lxc//tmp_root_pass
+\end{lstlisting}
+
+コンテナの終了は、lxc-shutdownコマンドを実行すればよい。
+
+\begin{lstlisting}
+$ sudo lxc-shutdown -n test-container-101
+\end{lstlisting}
+
+
+\subsection{コンテナネットワークの設定}
+lxcbr0の図を入れる！！！！！！！！！！！！
+
+\subsection{コンテナの情報を見る}
+
+
+
 
 \chapter{あとがき}
 

@@ -119,10 +119,8 @@ LXCによる仮想環境を立ち上げるためには、まずテンプレー�
 
 \begin{lstlisting}
 $ ls /usr/share/lxc/templates/
-lxc-alpine     lxc-centos    lxc-fedora        lxc-oracle  lxc-ubuntu-cloud
-lxc-altlinux   lxc-cirros    lxc-gentoo        lxc-plamo
-lxc-archlinux  lxc-debian    lxc-openmandriva  lxc-sshd
-lxc-busybox    lxc-download  lxc-opensuse      lxc-ubuntu
+lxc-alpine    lxc-archlinux  lxc-centos  lxc-debian    lxc-fedora  lxc-openmandriva  lxc-oracle  lxc-sshd    lxc-ubuntu-cloud
+lxc-altlinux  lxc-busybox    lxc-cirros  lxc-download  lxc-gentoo  lxc-opensuse      lxc-plamo	 lxc-ubuntu
 \end{lstlisting}
 
 Ubuntuのテンプレートを用いてtest-container-101という名前のUbuntuのコンテナを立ち上げる。
@@ -140,9 +138,9 @@ $ sudo lxc-create -t ubuntu -n test-container-101
 そこで、test-container-101のrootfsの中を覗いてみると以下の通りとなる。
 
 \begin{lstlisting}
-$ ls -F /var/lib/lxc/test-container-101/rootfs/
-bin/   dev/  home/  lib64/  mnt/  proc/  run/   srv/  tmp/  var/
-boot/  etc/  lib/   media/  opt/  root/  sbin/  sys/  usr/
+$ sudo ls -F /var/lib/lxc/test-container-101/rootfs/
+bin/  boot/  dev/  etc/  home/	lib/  lib64/  media/  mnt/
+opt/  proc/  root/	run/  sbin/  srv/  sys/  tmp/  usr/  var/
 \end{lstlisting}
 
 インストールしたコンテナの起動には以下のコマンドを実行する。
@@ -157,10 +155,11 @@ $ sudo lxc-start -n test-container-101 -d
 $ sudo lxc-console -n test-container-101
 \end{lstlisting}
 
-コンテナから抜ける際には、Ctrl+Aを入力してその後Qを押す。また、デフォルトのrootパスワードは以下に保存されている。
+コンテナから抜ける際には、Ctrl+Aを入力してその後Qを押す。また、デフォルトのユーザはubuntuで、パスワードもubuntuである。インストール時に以下のメッセージが表示されているはずである。
 
 \begin{lstlisting}
-/var/lib/lxc//tmp_root_pass
+# The default user is 'ubuntu' with password 'ubuntu'!
+# Use the 'sudo' command to run tasks as root in the container.
 \end{lstlisting}
 
 コンテナの終了は、lxc-shutdownコマンドを実行すればよい。
@@ -169,11 +168,52 @@ $ sudo lxc-console -n test-container-101
 $ sudo lxc-shutdown -n test-container-101
 \end{lstlisting}
 
-
-\subsection{コンテナネットワークの設定}
-lxcbr0の図を入れる！！！！！！！！！！！！
-
 \subsection{コンテナの情報を見る}
+コンテナに関する情報を見てみよう。lxc-lsというコマンドでホスト上にあるコンテナの情報を確認することができる。--fancyオプションを付けることで、コンテナ名、状態、IPv4のアドレス、IPv6のアドレス、自動起動の有無を確認できる。
+
+\begin{lstlisting}
+$ sudo lxc-ls --fancy
+NAME                STATE    IPV4  IPV6  AUTOSTART
+--------------------------------------------------
+test-container-101  STOPPED  -     -     NO
+\end{lstlisting}
+
+コンテナ単体の詳細情報についてはlxc-infoというコマンドが提供されている。コンテナがSTOPPEDした状態のときにはこう表示される。
+
+\begin{lstlisting}
+$ sudo lxc-info -n test-container-101
+Name:           test-container-101
+State:          STOPPED
+\end{lstlisting}
+
+コンテナを起動すると詳細情報が表示される。
+
+\begin{lstlisting}
+$ sudo lxc-info -n test-container-101
+Name:           test-container-101
+State:          RUNNING
+PID:            20434
+CPU use:        0.77 seconds
+BlkIO use:      7.16 MiB
+Memory use:     13.53 MiB
+KMem use:       0 bytes
+Link:           vethABI04E
+ TX bytes:      940 bytes
+ RX bytes:      592 bytes
+ Total bytes:   1.50 KiB
+\end{lstlisting}
+
+
+このように特定の情報のみを取得することも可能である。
+
+\begin{lstlisting}
+$ sudo lxc-info -n test-container-101 -c lxc.utsname -c lxc.rootfs
+lxc.utsname = test-container-101
+lxc.rootfs = /var/lib/lxc/test-container-101/rootfs
+\end{lstlisting}
+
+
+\subsection{LXDとは何か}
 
 
 

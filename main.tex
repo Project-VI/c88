@@ -76,6 +76,7 @@ hogehoge
 \subsection{昔からあるコンテナ技術}
 コンテナ技術を取り囲む現在の状況と、それを踏まえた上でのLXCとDockerの根本的な違いについて説明したいと思う。Linux Containers(LXC)は、どうやって我々がアプリケーションを動かしスケールさせるかという問題を変化させる可能性を持っている。コンテナ技術は新しいものではない。そして、LXCに関して言うと、追加パッチをLinux Kernelに適用させることなく、vanilla Linux Kernel上で稼働させることができる。なお、LXCのVersion1は、長期サポートバージョンであり、5年間サポートされることになる。話が逸れるが、vanilla Linux Kernelとは、Linux作者のLinus Torvalds氏がリリースするプレーンなKernelのことである。それをベースに様々なベンダーが追加で拡張していくのである。また、vanillaという言葉には「普通の、ありきたりな、おもしろみのない」という意味がある。
 
+\noindent
 話を戻そう。
 
 コンテナ技術は、最近登場した新技術ではない。昔から存在し色んな所で採用されている。FreeBSDにはJailがあり、SolarisにはZoneがある。それに加えて、OpenVZやLinux VServerのようなContainersも存在する。その歴史は、chrootに始まり、FreeBSD Jailを経て、Linux Containers(LXC)に至る。chrootでは、大雑把に言って、ディレクトリーツリーの分離を行っていた。プロセスリスト自体は共有するようなモデルである。chrootのユースケースとしては、開発者向けのテスト/ビルド用環境である。FreeBSD Jailでは、chrootの機能に加えて、プロセスリストとネットワークスタックも分離(というか隔離)された。ユースケースとしては、root権限の一般ユーザへの委譲、またそれに頼る形でのホスティングサービスである。LXCでは、リソース管理テーブルを隔離し、cgroupsによるシステムリソース(CPU、メモリ、ディスクetc)の制御を行えるようになった。これにより、LXCは、軽量な仮想環境と見なすことができるようになった。
@@ -95,7 +96,6 @@ LXCは、Dockerのようなフロントエンドのアプリケーションの�
 
 \subsection{DockerとLXCでは何が違うのか}
 Docker視点から見たLXCとの違いについて説明する。
-
 そもそもLXCに対してDockerが提供している機能とは何なのか。まず第一に言われることは、どのようなホストOSであってもポータブルなデプロイが可能である点である。Dockerはアプリケーションをビルドするためのフォーマットが定義されている。この定義をまとめて記述するためにDockerfileファイルを利用する。このDockerfileファイルはビルドでよく使われるmakefileファイル同様にDocker Containersの構成情報をまとめて記述するテキストファイルである。このファイルに記述する定義情報が全ての依存関係をカプセル化しているため、それはどこで実行してもアプリケーション実行環境が同一になるのです。LXCのプロセスのサンドボックスもポータビリティーを持っているが、もしLXCのコンフィグをカスタマイズしているとしたら、ネットワークやストレージ、ディストリビューションの違いにより、それは別環境で稼働しない可能性が高くなります。Dockerはその全てを抽象化するためどんな環境でも稼働させることができるのである。
 
 Dockerについて言及するエンジニアは、総じてアプリケーション寄りのエンジニアである。Dockerは、軽量な仮想マシンとしての利用というよりもアプリケーションのデプロイに最適化されている。これはDocker自体のAPIやデザインの設計思想に反映されている。それとは対照的に、LXCは軽量な仮想マシンとしての利用に注力している。Dockerには、gitに似たバージョン管理機能が含まれている。バージョン間のdiffの取得やCommit、ロールバックが可能となっている。それによって、Containersの変更を誰がどのように行ったのかについての全てのログを追うことができる。
@@ -108,6 +108,7 @@ LXCの基本的なコマンドを使ったコンテナ操作を，Ubuntu14.04を
 \subsection{LXCのインストール}
 Ubuntuの最新版であるUbuntu 14.04 LTSでは、LXC 1.0.7がlxcというパッケージ名で提供されている。また、Debian 8 (Jessie) では、LXC 1.0.6のパッケージが提供されている。
 
+\noindent
 インストールは以下のコマンドを叩くだけである。
 
 \begin{lstlisting}
@@ -123,18 +124,21 @@ lxc-alpine    lxc-archlinux  lxc-centos  lxc-debian    lxc-fedora  lxc-openmandr
 lxc-altlinux  lxc-busybox    lxc-cirros  lxc-download  lxc-gentoo  lxc-opensuse      lxc-plamo	 lxc-ubuntu
 \end{lstlisting}
 
+\noindent
 Ubuntuのテンプレートを用いてtest-container-101という名前のUbuntuのコンテナを立ち上げる。
 
 \begin{lstlisting}
 $ sudo lxc-create -t ubuntu -n test-container-101
 \end{lstlisting}
 
+\noindent
 これでコンテナのrootディレクトリに相当するディレクトリに必要なものがインストールされる。コンテナの場所は以下のディレクトリである。
 
 \begin{lstlisting}
 /var/lib/lxc/<コンテナ名>/
 \end{lstlisting}
 
+\noindent
 そこで、test-container-101のrootfsの中を覗いてみると以下の通りとなる。
 
 \begin{lstlisting}
@@ -143,18 +147,21 @@ bin/  boot/  dev/  etc/  home/	lib/  lib64/  media/  mnt/
 opt/  proc/  root/	run/  sbin/  srv/  sys/  tmp/  usr/  var/
 \end{lstlisting}
 
+\noindent
 インストールしたコンテナの起動には以下のコマンドを実行する。
 
 \begin{lstlisting}
 $ sudo lxc-start -n test-container-101 -d
 \end{lstlisting}
 
+\noindent
 -dオプションでデーモンとしてコンテナを起動する。この状態でlxc-consoleコマンドを用いてコンソール接続することでコンテナの内部にログインすることができる。
 
 \begin{lstlisting}
 $ sudo lxc-console -n test-container-101
 \end{lstlisting}
 
+\noindent
 コンテナから抜ける際には、Ctrl+Aを入力してその後Qを押す。また、デフォルトのユーザはubuntuで、パスワードもubuntuである。インストール時に以下のメッセージが表示されているはずである。
 
 \begin{lstlisting}
@@ -162,6 +169,7 @@ $ sudo lxc-console -n test-container-101
 # Use the 'sudo' command to run tasks as root in the container.
 \end{lstlisting}
 
+\noindent
 コンテナの終了は、lxc-shutdownコマンドを実行すればよい。
 
 \begin{lstlisting}
@@ -178,6 +186,7 @@ NAME                STATE    IPV4  IPV6  AUTOSTART
 test-container-101  STOPPED  -     -     NO
 \end{lstlisting}
 
+\noindent
 コンテナ単体の詳細情報についてはlxc-infoというコマンドが提供されている。コンテナがSTOPPEDした状態のときにはこう表示される。
 
 \begin{lstlisting}
@@ -186,6 +195,7 @@ Name:           test-container-101
 State:          STOPPED
 \end{lstlisting}
 
+\noindent
 コンテナを起動すると詳細情報が表示される。
 
 \begin{lstlisting}
@@ -203,7 +213,7 @@ Link:           vethABI04E
  Total bytes:   1.50 KiB
 \end{lstlisting}
 
-
+\noindent
 このように特定の情報のみを取得することも可能である。
 
 \begin{lstlisting}
@@ -214,8 +224,23 @@ lxc.rootfs = /var/lib/lxc/test-container-101/rootfs
 
 
 \subsection{LXDとは何か}
+LXDについて本家ページを元に少し説明する。LXDとはLinux Container Daemonの略である。Canonical主導で開発が進められているコンテナ技術であり、コンテナに今どきのハイパーバイザーの機能を追加するサーバプログラムである。このデーモンはREST APIを提供しているのでローカルからだけでなくネットワーク経由でのコンテナの操作が可能である。
+\noindent
+主要機能は以下の通りである。
+\begin{itemize}
+  \item 非特権コンテナ、リソース制限を用いたセキュアなデザイン
+  \item 直感的なコマンドラインとREST API
+  \item イメージベースのコンテナ構築
+  \item ライブマイグレーション
+\end{itemize}
 
+\noindent
+特に、Docker Hubにあるイメージを利用可能になるということがアナウンスされている点が期待できる。
 
+\begin{lstlisting}
+$ add-apt-repository ppa:ubuntu-lxc/lxd-git-master
+$ apt-get update && apt-get -y install lxd
+\end{lstlisting}
 
 
 \chapter{あとがき}

@@ -237,39 +237,64 @@ LXDについて本家ページを元に少し説明する。LXDとはLinux Conta
 \noindent
 特に、Docker Hubにあるイメージを利用可能になるということがアナウンスされている点が期待できる。
 
+
+\subsection{LXDインストール}
+UbuntuユーザはPPAを使って以下の通りインストール可能である。なお、他のディストリビューションのユーザは、最新のリリースのtarballかgitリポジトリから直接LXDをダウンロードしてビルドできる。
 \begin{lstlisting}
-$ add-apt-repository ppa:ubuntu-lxc/lxd-git-master
-$ apt-get update && apt-get -y install lxd
+$ sudo add-apt-repository ppa:ubuntu-lxc/lxd-git-master
+$ sudo apt-get update && sudo apt-get -y install lxd
 \end{lstlisting}
 
+\subsection{LXDイメージのインポート}
+イメージベースなので、ダウンロードする。なお、LXDのコマンドラインはlxcというコマンドである。何ともややこしい。コンテナイメージのインポートはlxc-imagesというコマンドを利用する。以下では、Ubuntu14.04をインポートしている。
+
+\begin{lstlisting}
+$ sudo lxd-images import lxc ubuntu trusty amd64 --alias ubuntu
+\end{lstlisting}
+
+\noindent
+以下のコマンドでイメージ一覧を取得できる。
+\begin{lstlisting}
+$ sudo lxc image list
++--------+--------------+--------+-------------+--------+------------------------------+
+| ALIAS  | FINGERPRINT  | PUBLIC | DESCRIPTION |  ARCH  |         UPLOAD DATE          |
++--------+--------------+--------+-------------+--------+------------------------------+
+| ubuntu | 04aac4257341 | no     |             | x86_64 | Jul 15, 2015 at 1:16pm (UTC) |
++--------+--------------+--------+-------------+--------+------------------------------+
+\end{lstlisting}
+
+\subsection{LXDコンテナの起動}
+lxc launchコマンドで起動できる。
+\begin{lstlisting}
+$ sudo lxc launch ubuntu test-container-102
+Creating container...done
+Starting container...done
+error: saving config file for the container failed
+\end{lstlisting}
+
+\noindent
+できなかった。。。。どうやらこのバグにヒットしたらしい。(https://github.com/lxc/lxd/issues/739)
+
+\noindent
+改めて起動するとこのようになる。
+\begin{lstlisting}
+$ lxc list
++--------------------+---------+------------+------+-----------+-----------+
+|        NAME        |  STATE  |    IPV4    | IPV6 | EPHEMERAL | SNAPSHOTS |
++--------------------+---------+------------+------+-----------+-----------+
+| test-container-103 | RUNNING | 10.0.3.138 |      | NO        | 0         |
++--------------------+---------+------------+------+-----------+-----------+
+\end{lstlisting}
+
+\noindent
+このような感じでLXDを扱えるが、まだまだバグもあり不安定だという印象が強い。もし、興味があれば使ってみてほしい。
 
 \chapter{あとがき}
 
 \section{こじろー}
-
-\subsection{Container}
-
-\begin{quote}
-hoge
-\end{quote}
-
-\begin{flushright}
-piyo
-\end{flushright}
-
-hogehoge
+本体は表紙です。ついでに、中身を流し読みでもしていただけると嬉しいです。
 
 \section{まっきー}
-
-\subsection{KVM}
-
-\begin{quote}
-hoge
-\end{quote}
-
-\begin{flushright}
-piyo
-\end{flushright}
 
 hogehoge
 

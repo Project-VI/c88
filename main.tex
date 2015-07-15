@@ -81,6 +81,8 @@ hogehoge
 
 コンテナ技術は、最近登場した新技術ではない。昔から存在し色んな所で採用されている。FreeBSDにはJailがあり、SolarisにはZoneがある。それに加えて、OpenVZやLinux VServerのようなContainersも存在する。その歴史は、chrootに始まり、FreeBSD Jailを経て、Linux Containers(LXC)に至る。chrootでは、大雑把に言って、ディレクトリーツリーの分離を行っていた。プロセスリスト自体は共有するようなモデルである。chrootのユースケースとしては、開発者向けのテスト/ビルド用環境である。FreeBSD Jailでは、chrootの機能に加えて、プロセスリストとネットワークスタックも分離(というか隔離)された。ユースケースとしては、root権限の一般ユーザへの委譲、またそれに頼る形でのホスティングサービスである。LXCでは、リソース管理テーブルを隔離し、cgroupsによるシステムリソース(CPU、メモリ、ディスクetc)の制御を行えるようになった。これにより、LXCは、軽量な仮想環境と見なすことができるようになった。
 
+\newpage
+
 \subsection{なぜ皆コンテナに騒いでいるのか}
 コンテナは、ホストシステムからアプリケーションのワークロードを隔離、あるいはカプセル化する。コンテナを、ホストOS内にあるアプリケーションが実行されているOSと見なすことができ、かつ、それはVirtual Machineのように振る舞うのである。このエミュレーションは、Linux Kernelそれ自体と、様々なディストリビューションとコンテナを使ってアプリケーションを動かすユーザのためにコンテナ用OSのテンプレートを提供するLXC Projectによって、実現されている。このように、Containers技術が仮想マシンのように振る舞うことが可能になったことが、一気に注目を浴びる原因となったのである。
 
@@ -101,6 +103,8 @@ Docker視点から見たLXCとの違いについて説明する。
 Dockerについて言及するエンジニアは、総じてアプリケーション寄りのエンジニアである。Dockerは、軽量な仮想マシンとしての利用というよりもアプリケーションのデプロイに最適化されている。これはDocker自体のAPIやデザインの設計思想に反映されている。それとは対照的に、LXCは軽量な仮想マシンとしての利用に注力している。Dockerには、gitに似たバージョン管理機能が含まれている。バージョン間のdiffの取得やCommit、ロールバックが可能となっている。それによって、Containersの変更を誰がどのように行ったのかについての全てのログを追うことができる。
 
 他にもDockerの利点は多く存在するが、主にこのような点により、Dockerは、コンテナそのもの対する見方を変えるきっかけを作った。今まで軽量な仮想マシンとして見られていたコンテナ技術をアプリケーションとしてのコンテナとしてエンジニアに再認識させることに成功したのである。
+
+\newpage
 
 \section{LXCを使い軽量仮想環境を手に入れよう}
 LXCの基本的なコマンドを使ったコンテナ操作を，Ubuntu14.04をベースにした環境を使って説明していきたい。
@@ -147,6 +151,8 @@ bin/  boot/  dev/  etc/  home/	lib/  lib64/  media/  mnt/
 opt/  proc/  root/	run/  sbin/  srv/  sys/  tmp/  usr/  var/
 \end{lstlisting}
 
+\newpage
+
 \noindent
 インストールしたコンテナの起動には以下のコマンドを実行する。
 
@@ -175,6 +181,7 @@ $ sudo lxc-console -n test-container-101
 \begin{lstlisting}
 $ sudo lxc-shutdown -n test-container-101
 \end{lstlisting}
+
 
 \subsection{コンテナの情報を見る}
 コンテナに関する情報を見てみよう。lxc-lsというコマンドでホスト上にあるコンテナの情報を確認することができる。--fancyオプションを付けることで、コンテナ名、状態、IPv4のアドレス、IPv6のアドレス、自動起動の有無を確認できる。
@@ -213,6 +220,7 @@ Link:           vethABI04E
  Total bytes:   1.50 KiB
 \end{lstlisting}
 
+
 \noindent
 このように特定の情報のみを取得することも可能である。
 
@@ -222,6 +230,7 @@ lxc.utsname = test-container-101
 lxc.rootfs = /var/lib/lxc/test-container-101/rootfs
 \end{lstlisting}
 
+\newpage
 
 \subsection{LXDとは何か}
 LXDについて本家ページを元に少し説明する。LXDとはLinux Container Daemonの略である。Canonical主導で開発が進められているコンテナ技術であり、コンテナに今どきのハイパーバイザーの機能を追加するサーバプログラムである。このデーモンはREST APIを提供しているのでローカルからだけでなくネットワーク経由でのコンテナの操作が可能である。
@@ -263,6 +272,8 @@ $ sudo lxc image list
 +--------+--------------+--------+-------------+--------+------------------------------+
 \end{lstlisting}
 
+\newpage
+
 \subsection{LXDコンテナの起動}
 lxc launchコマンドで起動できる。
 \begin{lstlisting}
@@ -292,7 +303,7 @@ $ lxc list
 \chapter{あとがき}
 
 \section{こじろー}
-本体は表紙です。ついでに、中身を流し読みでもしていただけると嬉しいです。
+本体は表紙です。ついでに、中身も流し読みしていただけると嬉しいです。
 
 \section{まっきー}
 

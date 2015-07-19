@@ -24,8 +24,6 @@
 \newpage
 
 \thispagestyle{empty}
-%\setlength{\textwidth}{\fullwidth}
-%\setlength{\evensidemargin}{\oddsidemargin}
 
 \tableofcontents
 
@@ -39,7 +37,7 @@
 
 \setcounter{page}{1}
 
-\chapter{KVM}
+\chapter{QEMU/KVM超入門}
 
 KVMについて知りたい人がいたとして、その人が知りたいのは恐らくKVMではなくQEMUだろう。この章では、実はKVMは、特に何もしていない、というのを解説しようと思う。メモリの割り当て？ネットワーク接続？USB?ディスク？それはKVMではなくQEMUで語るものだ。皆が何となく「ハイパーバイザ」と呼ぶ物、それは正確には「仮想マシン」と呼び、それはQEMUによって実現される。KVMはQEMUの仮想CPU高速化モジュールとしてとらえてしまっても、特に誤解はない。そして、これを正確には「ハイパーバイザ」と呼ぶ。
 
@@ -86,25 +84,17 @@ KVMの話をする時に必要になるのが、CPUの仮想化だ。CPUが解�
 
 \section{KVM}
 
-さて、前章をもってすればKVMの解説は単純を極める。KVMとは、センシティブな命令が実行されようとすしていることを、ユーザー空間のプログラムに教える機能を持つ、カーネルモジュールである。知りたいユーザー空間のプログラムは/dev/kvmをポーリングしていると、KVMが教えてくれる。KVMはそれしかしない。今のKVMはいかに「本当にそれだけのことをする」ように機能を削り、磨かれているところである。
+さて、前章をもってすればKVMの解説は単純を極める。KVMとは、センシティブな命令が実行されようとすしていることを、ユーザー空間のプログラムに教える機能を持つ、カーネルモジュールである。
 
-\subsection{OpenStack}
+知りたいユーザー空間のプログラムは/dev/kvmをポーリングしていると、KVMが教えてくれる。KVMはそれしかしない。今のKVMはいかに「本当にそれだけのことをする」ように機能を削り、磨かれているところである。
 
-\begin{itemize}
-  \item KVM
-  \item OpenStack
-\end{itemize}
+\subsubsection{virtio}
+\subsubsection{vhost}
+\subsubsection{vfio}
 
+\section{QEMU再び}
 
-\begin{enumerate}
-  \item KVM
-  \item Docker
-  \item LXC
-\end{enumerate}
-
-\begin{lstlisting}
-./stack.sh
-\end{lstlisting}
+\subsection{QEMU Monitor}
 
 \chapter{Containers超入門}
 

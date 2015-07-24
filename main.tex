@@ -116,6 +116,56 @@ vhostとは、ゲストとホストカーネルとの間の共有メモリ上に
 
 libvirt経由で起動したQEMUによる仮想マシンの引数をみてみよう。
 
+\begin{lstlisting}
+/usr/bin/qemu-system-x86_64
+-machine accel=kvm
+-name instance-00000001
+-S
+-machine pc-i440fx-2.3,accel=kvm,usb=off
+-m 512
+-realtime mlock=off
+-smp 1,sockets=1,cores=1,threads=1
+-uuid c4a02e50-30de-4162-b847-71d65a1942d3
+-smbios type=1,
+        manufacturer=OpenStack Foundation,
+        product=OpenStack Nova,
+        version=12.0.0,
+        serial=1f04f737-4d3f-42df-ac64-29be9553015d,
+        uuid=c4a02e50-30de-4162-b847-71d65a1942d3,
+        family=Virtual Machine
+-no-user-config
+-nodefaults
+-chardev socket,id=charmonitor,path=/var/lib/libvirt/qemu/instance-00000001.monitor,server,nowait
+-mon chardev=charmonitor,id=monitor,mode=control
+-rtc base=utc,driftfix=slew
+-global kvm-pit.lost_tick_policy=discard
+-no-hpet
+-no-shutdown
+-boot strict=on
+-kernel /opt/stack/data/nova/instances/c4a02e50-30de-4162-b847-71d65a1942d3/kernel
+-initrd /opt/stack/data/nova/instances/c4a02e50-30de-4162-b847-71d65a1942d3/ramdisk
+-append root=/dev/vda console=tty0 console=ttyS0
+-device piix3-usb-uhci,id=usb,bus=pci.0,addr=0x1.0x2
+-drive file=/opt/stack/data/nova/instances/c4a02e50-30de-4162-b847-71d65a1942d3/disk,
+       if=none,id=drive-virtio-disk0,format=qcow2,cache=none
+-device virtio-blk-pci,scsi=off,bus=pci.0,addr=0x4,drive=drive-virtio-disk0,id=virtio-disk0,bootindex=1
+-drive file=/opt/stack/data/nova/instances/c4a02e50-30de-4162-b847-71d65a1942d3/disk.config,
+       if=none,id=drive-ide0-1-1,readonly=on,format=raw,cache=none
+-device ide-cd,bus=ide.1,unit=1,drive=drive-ide0-1-1,id=ide0-1-1
+-netdev tap,fd=24,id=hostnet0,vhost=on,vhostfd=25
+-device virtio-net-pci,netdev=hostnet0,id=net0,mac=fa:16:3e:51:76:0c,bus=pci.0,addr=0x3
+-chardev file,id=charserial0,
+         path=/opt/stack/data/nova/instances/c4a02e50-30de-4162-b847-71d65a1942d3/console.log
+-device isa-serial,chardev=charserial0,id=serial0
+-chardev pty,id=charserial1
+-device isa-serial,chardev=charserial1,id=serial1
+-vnc 127.0.0.1:0
+-k en-us
+-device cirrus-vga,id=video0,bus=pci.0,addr=0x2
+-device virtio-balloon-pci,id=balloon0,bus=pci.0,addr=0x5
+-msg timestamp=on
+\end{lstlisting}
+
 \section{QEMU Monitor}
 
 QEMUにはユーザーモードとシステムエミュレーターモードがある。前者はバイナリ変換をするだけなのだが、KVMの事を話すのであれば後者のシステムエミュレーターモードについて考えねばなるまい。ネットワークやディスクなどをエミュレートしてくれるのは後者のモードである。
@@ -131,6 +181,10 @@ QEMUがどの様に動いているのかを見るには、QEMU Monitorを使う�
 なんのこっちゃって？そりゃそうだ。QEMUに画面があるって意外に知られていないのではないかと思う。百聞は一見にしかず。ためしにその端末でqemu-system-x86とか打ってみよう。X Window Systemを使っている人なら何か黒い画面が出てくると思う。これがQEMUのGUIである。新しいディストリビューションを使っている人はメニューバーなんかも出てくると思う。なんて言っている間に、QEMUは一旦iPXEでの起動を試し、それに失敗して今、起動できないという旨のメッセージが表示されているのではないか。普段libvirt経由で仮想マシンが動作しているときは、GUIを使わずにバックグラウンドで起動するようになっている。なので画面は出ない。
 
 このQEMUモニターはソケット経由で操作できる。GUIがなくてもそのソケットに接続すればQEMUモニターが使える。どうせlibvirtで仮想マシンを建てているだろうから、QEMUのモニターを直接使わずに、libvirtを経由することにしよう。実はそちらの方が見やすいし、大抵の場合は簡単だ。virshにqemu-monitor-commandというコマンドがあるので、使ってみよう。
+
+\begin{lstlisting}
+virsh qemu-monitor-command --hmp 2 help
+\end{lstlisting}
 
 \chapter{Containers超入門}
 

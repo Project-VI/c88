@@ -97,9 +97,120 @@ KVMの話をする時に必要になるのが、CPUの仮想化だ。CPUが解�
 
 \subsection{/dev/kvm}
 
+KVMモジュールは/dev/kvmをユーザー空間との接点として使う。KVMモジュールがロードされるとこのデバイスファイルが見えるはずである。カーネルモジュールであるKVMを使うにはKVMが用意しているAPIを使うのだが、そのAPIはこの/dev/kvmにioctlすることにより可能になる。複数の仮想マシンが動作している場合には、このデバイスファイルをスケジューリングされることになる。
+
 \subsection{API}
 
+/dev/kvmを介するAPIには以下のようなものがある。
+
+\begin{lstlisting}
+KVM_GET_API_VERSION
+
+Capability: basic
+Architectures: all
+Type: system ioctl
+Parameters: none
+Returns: the constant KVM_API_VERSION (=12)
+
+This identifies the API version as the stable kvm API. It is not
+expected that this number will change.  However, Linux 2.6.20 and
+2.6.21 report earlier versions; these are not documented and not
+supported.  Applications should refuse to run if KVM_GET_API_VERSION
+returns a value other than 12.  If this check passes, all ioctls
+described as 'basic' will be available.
+
+KVM_CREATE_VM
+
+Capability: basic
+Architectures: all
+Type: system ioctl
+Parameters: machine type identifier (KVM_VM_*)
+Returns: a VM fd that can be used to control the new virtual machine.
+
+KVM_CREATE_VCPU
+
+Capability: basic
+Architectures: all
+Type: vm ioctl
+Parameters: vcpu id (apic id on x86)
+Returns: vcpu fd on success, -1 on error
+
+This API adds a vcpu to a virtual machine.  The vcpu id is a small integer
+in the range [0, max_vcpus).
+
+KVM_RUN
+
+Capability: basic
+Architectures: all
+Type: vcpu ioctl
+Parameters: none
+Returns: 0 on success, -1 on error
+Errors:
+ EINTR:     an unmasked signal is pending
+
+KVM_INTERRUPT
+
+Capability: basic
+Architectures: x86, ppc, mips
+Type: vcpu ioctl
+Parameters: struct kvm_interrupt (in)
+Returns: 0 on success, -1 on error
+
+KVM_SET_USER_MEMORY_REGION
+
+Capability: KVM_CAP_USER_MEM
+Architectures: all
+Type: vm ioctl
+Parameters: struct kvm_userspace_memory_region (in)
+Returns: 0 on success, -1 on error
+
+struct kvm_userspace_memory_region {
+	__u32 slot;
+	__u32 flags;
+	__u64 guest_phys_addr;
+	__u64 memory_size; /* bytes */
+	__u64 userspace_addr; /* start of the userspace allocated memory */
+};
+
+/* for kvm_memory_region::flags */
+#define KVM_MEM_LOG_DIRTY_PAGES	(1UL << 0)
+#define KVM_MEM_READONLY	(1UL << 1)
+
+This ioctl allows the user to create or modify a guest physical memory
+slot.  When changing an existing slot, it may be moved in the guest
+physical memory space, or its flags may be modified.  It may not be
+resized.  Slots may not overlap in guest physical address space.
+\end{lstlisting}
+
 \subsubsection{VMEXIT/VMENTER}
+
+KVMが特権命令を検知すると、/dev/kvm経由でその理由が通知される。これをVM EXITと呼ぶ。処理がKVMに戻ってゲストの命令が再度実行されることをVM ENTERと呼ぶ。VM EXIT時の理由としては以下のようなものがある。
+
+\begin{lstlisting}
+KVM_EXIT_MMIO
+
+If exit_reason is KVM_EXIT_FAIL_ENTRY, the vcpu could not be run due
+to unknown reasons.  Further architecture-specific information is
+available in hardware_entry_failure_reason.
+
+If exit_reason is KVM_EXIT_IO, then the vcpu has
+executed a port I/O instruction which could not be satisfied by kvm.
+data_offset describes where the data is located (KVM_EXIT_IO_OUT) or
+where kvm expects application code to place the data for the next
+KVM_RUN invocation (KVM_EXIT_IO_IN).
+
+If exit_reason is KVM_EXIT_MMIO, then the vcpu has
+executed a memory-mapped I/O instruction which could not be satisfied
+by kvm.  The 'data' member contains the written data if 'is_write' is
+true, and should be filled by application code otherwise.
+
+If exit_reason is KVM_EXIT_SYSTEM_EVENT then the vcpu has triggered
+a system-level event using some architecture specific mechanism (hypercall
+or some special instruction). In case of ARM/ARM64, this is triggered using
+HVC instruction based PSCI call from the vcpu. The 'type' field describes
+the system-level event type. The 'flags' field describes architecture
+specific flags for the system-level event.
+\end{lstlisting}
 
 \subsection{paravirtual driver}
 
@@ -212,6 +323,12 @@ vhostとは、ゲストとホストカーネルとの間の共有メモリ上に
 
 これらのオプションをすべて手で指定するのはかなり骨が折れる。そこで、libvirtのような汎用ライブラリを用いる。上記のオプションは、OpenStackがLibvirt経由で起動した仮想マシンの引数である。
 
+実際には、libvirtは様々な仮想化技術を抽象化したラッパーライブラリである。QEMU/KVMの他にも、LXCやDocker、vmware、xenなども同じインターフェースで管理できる。libvirt自体はCで書かれており、ラッパーもCである。様々な言語へのbindingも提供されており、特にPython向けのlibvirt-pythonはlibvirtとの追従が早く、ほぼ公式言語bindingとしての位置付けになっている。
+
+このlibvirt、最近のOpenStack流行りのおかげで、新機能が次々と追加され、どんどん便利になっている反面、少しバージョンが古いとかゆいところに手が届くメソッドが使えないことが多々ある。\#ifディレクティブを使って、マイナーバージョン単位で厳密に新関数の組み込み可否を決め手おり、そのバージョン規定を満たさないと容赦なくコンパイルから外されている。まぁ、安心なんだだけどね……。
+
+QEMUの開発もものすごい勢いで行われ、ライブブロックマイグレーションなど興味深い機能の追加・改善が日々行われているが、これも最新のQEMUを使うなどしないと使うことができない。嬉しいやら残念やら。
+
 \section{QEMU Monitor}
 
 QEMUにはユーザーモードとシステムエミュレーターモードがある。前者はバイナリ変換をするだけなのだが、KVMの事を話すのであれば後者のシステムエミュレーターモードについて考えねばなるまい。ネットワークやディスクなどをエミュレートしてくれるのは後者のモードである。
@@ -234,7 +351,15 @@ QEMUモニターをどうやって使うのかというと、QEMUの画面でF2�
 virsh qemu-monitor-command --hmp instance-00000001 help
 \end{lstlisting}
 
-QEMUモニターはQEMUプロセスとJSONで通信する。が、JSONは人が読み書きするには厳しいので、--hmpオプションで使い安くしている。Human Monitoring Protocolの頭文字を取ったものです。--hmpを忘れると、「文法が違う」とエラーが返ってくるだろう。まずはinfoコマンドで仮想マシン内の情報を取得するのを試してみるのがよいと思う。
+QEMUモニターはQEMUプロセスとJSONで通信する。例えばKVMの有効を確認するには
+
+\begin{lstlisting}
+virsh qemu-monitor-command instance-00000001 '{"execute": "query-kvm"}'
+\end{lstlisting}
+
+となる。返値もJSONである。
+
+が、JSONは人が読み書きするには厳しいので、--hmpオプションで使い安くしている。これはHuman Monitoring Protocolの頭文字を取ったもの。--hmpを忘れると、「文法が違う」とエラーが返ってくるだろう。まずはinfoコマンドで仮想マシン内の情報を取得するのを試してみるのがよいと思う。
 
 \begin{lstlisting}
 virsh qemu-monitor-command --hmp instance-00000001 help info
@@ -535,7 +660,6 @@ static int emulator_pio_in_out(struct kvm_vcpu *vcpu, int size,
     return 0;
 }
 \end{lstlisting}
-
 
 \chapter{Containers超入門}
 

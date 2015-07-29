@@ -103,114 +103,49 @@ KVMモジュールは/dev/kvmをユーザー空間との接点として使う。
 
 /dev/kvmを介するAPIには以下のようなものがある。
 
-\begin{lstlisting}
-KVM_GET_API_VERSION
+KVM\_GET\_API\_VERSION
 
-Capability: basic
-Architectures: all
-Type: system ioctl
-Parameters: none
-Returns: the constant KVM_API_VERSION (=12)
+KVMのバージョンを返す。12より小さいバージョンが返ってきた場合はKVMモジュールを使わない方がいいらしい。
 
-This identifies the API version as the stable kvm API. It is not
-expected that this number will change.  However, Linux 2.6.20 and
-2.6.21 report earlier versions; these are not documented and not
-supported.  Applications should refuse to run if KVM_GET_API_VERSION
-returns a value other than 12.  If this check passes, all ioctls
-described as 'basic' will be available.
+KVM\_CREATE\_VM
 
-KVM_CREATE_VM
+文字通りKVMの作成をする。使う/dev/kvmのファイルディスクリプタが返る。
 
-Capability: basic
-Architectures: all
-Type: system ioctl
-Parameters: machine type identifier (KVM_VM_*)
-Returns: a VM fd that can be used to control the new virtual machine.
+KVM\_CREATE\_VCPU
 
-KVM_CREATE_VCPU
+仮想マシンにCPUを追加する。max\_vcpuより小さい値である必要がある。
 
-Capability: basic
-Architectures: all
-Type: vm ioctl
-Parameters: vcpu id (apic id on x86)
-Returns: vcpu fd on success, -1 on error
+KVM\_RUN
 
-This API adds a vcpu to a virtual machine.  The vcpu id is a small integer
-in the range [0, max_vcpus).
+仮想マシンの実行。
 
-KVM_RUN
+KVM\_INTERRUPT
 
-Capability: basic
-Architectures: all
-Type: vcpu ioctl
-Parameters: none
-Returns: 0 on success, -1 on error
-Errors:
- EINTR:     an unmasked signal is pending
+割り込み
 
-KVM_INTERRUPT
+KVM\_SET\_USER\_MEMORY\_REGION
 
-Capability: basic
-Architectures: x86, ppc, mips
-Type: vcpu ioctl
-Parameters: struct kvm_interrupt (in)
-Returns: 0 on success, -1 on error
-
-KVM_SET_USER_MEMORY_REGION
-
-Capability: KVM_CAP_USER_MEM
-Architectures: all
-Type: vm ioctl
-Parameters: struct kvm_userspace_memory_region (in)
-Returns: 0 on success, -1 on error
-
-struct kvm_userspace_memory_region {
-	__u32 slot;
-	__u32 flags;
-	__u64 guest_phys_addr;
-	__u64 memory_size; /* bytes */
-	__u64 userspace_addr; /* start of the userspace allocated memory */
-};
-
-/* for kvm_memory_region::flags */
-#define KVM_MEM_LOG_DIRTY_PAGES	(1UL << 0)
-#define KVM_MEM_READONLY	(1UL << 1)
-
-This ioctl allows the user to create or modify a guest physical memory
-slot.  When changing an existing slot, it may be moved in the guest
-physical memory space, or its flags may be modified.  It may not be
-resized.  Slots may not overlap in guest physical address space.
-\end{lstlisting}
+メモリの割り当て
 
 \subsubsection{VMEXIT/VMENTER}
 
 KVMが特権命令を検知すると、/dev/kvm経由でその理由が通知される。これをVM EXITと呼ぶ。処理がKVMに戻ってゲストの命令が再度実行されることをVM ENTERと呼ぶ。VM EXIT時の理由としては以下のようなものがある。
 
-\begin{lstlisting}
-KVM_EXIT_MMIO
+KVM\_EXIT\_FAIL\_ENTRY
 
-If exit_reason is KVM_EXIT_FAIL_ENTRY, the vcpu could not be run due
-to unknown reasons.  Further architecture-specific information is
-available in hardware_entry_failure_reason.
+よく分からんが実行できなかった！、という理由。理由ではない。
 
-If exit_reason is KVM_EXIT_IO, then the vcpu has
-executed a port I/O instruction which could not be satisfied by kvm.
-data_offset describes where the data is located (KVM_EXIT_IO_OUT) or
-where kvm expects application code to place the data for the next
-KVM_RUN invocation (KVM_EXIT_IO_IN).
+KVM\_EXIT\_IO
 
-If exit_reason is KVM_EXIT_MMIO, then the vcpu has
-executed a memory-mapped I/O instruction which could not be satisfied
-by kvm.  The 'data' member contains the written data if 'is_write' is
-true, and should be filled by application code otherwise.
+KVMだけではハンドルできないIOをVCPUが実行しようとした場合。これは分かる。
 
-If exit_reason is KVM_EXIT_SYSTEM_EVENT then the vcpu has triggered
-a system-level event using some architecture specific mechanism (hypercall
-or some special instruction). In case of ARM/ARM64, this is triggered using
-HVC instruction based PSCI call from the vcpu. The 'type' field describes
-the system-level event type. The 'flags' field describes architecture
-specific flags for the system-level event.
-\end{lstlisting}
+KVM\_EXIT\_MMIO
+
+KVM\_EXIT\_IOのMMIO版
+
+KVM\_EXIT\_SYSTEM\_EVENT
+
+アーキテクチャ依存のイベント発生時。ARMのハイパーバイザコール（HVC）とか。
 
 \subsection{paravirtual driver}
 

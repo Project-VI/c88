@@ -6,8 +6,8 @@
 
 \lstset{basicstyle={\footnotesize\ttfamily}}
 
-\setlength{\textwidth}{\fullwidth}
-\setlength{\evensidemargin}{\oddsidemargin}
+%\setlength{\textwidth}{\fullwidth}
+%\setlength{\evensidemargin}{\oddsidemargin}
 
 \begin{document}
 
@@ -47,16 +47,16 @@
 \thispagestyle{empty}
 \vspace*{\stretch{1}}
 \begin{center}
-\begin{minipage}{0.3\hsize}
-\begin{tiny}
-「全てが中佐の言った通りになっています。タイプゼロの発動、セブンスウェルの再来。おそらくこのままですと、やつらが出現するのは間違いありません。まもなくです、デューイ中佐。今日の賢人会議で、必ずや中佐の復権が認められ、そうなれば我等が」
+	\begin{minipage}{0.3\hsize}
+		\begin{tiny}
+			「全てが中佐の言った通りになっています。タイプゼロの発動、セブンスウェルの再来。おそらくこのままですと、やつらが出現するのは間違いありません。まもなくです、デューイ中佐。今日の賢人会議で、必ずや中佐の復権が認められ、そうなれば我等が」
 
-「私は礼節を無視するつもりはない。今のこの世界の王はその自らの罪から逃れ続け、生き永らえ、それが支持されている。だが、いづれその罪を償うために王は死を迎えざるを得ない。例えどれだけ逃げ回ってもだ。しかし、その王自らが首を差し出しているのなら、その首を刎ねてやるのが礼節だとは思わないか？」
-\begin{flushright}
-『エウレカセブン』
-\end{flushright}
-\end{tiny}
-\end{minipage}
+			「私は礼節を無視するつもりはない。今のこの世界の王はその自らの罪から逃れ続け、生き永らえ、それが支持されている。だが、いづれその罪を償うために王は死を迎えざるを得ない。例えどれだけ逃げ回ってもだ。しかし、その王自らが首を差し出しているのなら、その首を刎ねてやるのが礼節だとは思わないか？」
+			\begin{flushright}
+				『エウレカセブン』
+			\end{flushright}
+		\end{tiny}
+	\end{minipage}
 \end{center}
 \vspace*{\stretch{1}}
 
@@ -99,10 +99,10 @@ KVMとQEMUの違いをはっきりさせないと、有らぬ誤解を生むば�
 フォン・ノイマンという人が提唱したノイマン型コンピュータの仕組みは、何の改善もないまま、現在のコンピュータに使われている。基本的には、こうだ。コンピュータは以下の要素で成り立つ
 
 \begin{itemize}
-  \item 演算装置（CPU）
-  \item 記憶装置（RAM, Disk）
-  \item 出力装置（Tape, Display）
-  \item 入力装置（マウス・キーボード）
+	\item 演算装置（CPU）
+	\item 記憶装置（RAM, Disk）
+	\item 出力装置（Tape, Display）
+	\item 入力装置（マウス・キーボード）
 \end{itemize}
 
 記憶装置に書き込まれたプログラム通りに、記憶装置に一時的な計算結果を書き込みつつ、演算装置が計算を行う。可変パラメータは入力装置から得られるし、計算結果は出力装置に送られる。言ってしまえば、コンピュータはこれだけのことしかしない。CPUにはレジスタもある、という反論もあるが、それは要するに記憶装置だ。ネットは？それはよく訓練された入出力装置に過ぎない。まとめてしまえばたったこれだけでコンピュータは動作する。
@@ -162,31 +162,31 @@ KVMモジュールは\verb|/dev/kvm|をユーザー空間との接点として�
 \verb|/dev/kvm|を介するAPIには以下のようなものがある。
 
 \begin{description}
-  \item{\verb|KVM_GET_API_VERSION|：}
-    KVMのバージョンを返す。12より小さいバージョンが返ってきた場合はKVMモジュールを使わない方がいいらしい。
-  \item{\verb|KVM_CREATE_VM|：}
-    文字通りKVMの作成をする。使う\verb|/dev/kvm|のファイルディスクリプタが返る。
-  \item{\verb|KVM_CREATE_VCPU|：}
-    仮想マシンにCPUを追加する。\verb|max_vcpu|より小さい値である必要がある。
-  \item{\verb|KVM_RUN|：}
-    仮想マシンの実行。
-  \item{\verb|KVM_INTERRUPT|：}
-    割り込み
-  \item{\verb|KVM_SET_USER_MEMORY_REGION|：}
-    メモリの割り当て
+	\item{\verb|KVM_GET_API_VERSION|：}
+	KVMのバージョンを返す。12より小さいバージョンが返ってきた場合はKVMモジュールを使わない方がいいらしい。
+	\item{\verb|KVM_CREATE_VM|：}
+	文字通りKVMの作成をする。使う\verb|/dev/kvm|のファイルディスクリプタが返る。
+	\item{\verb|KVM_CREATE_VCPU|：}
+	仮想マシンにCPUを追加する。\verb|max_vcpu|より小さい値である必要がある。
+	\item{\verb|KVM_RUN|：}
+	仮想マシンの実行。
+	\item{\verb|KVM_INTERRUPT|：}
+	割り込み
+	\item{\verb|KVM_SET_USER_MEMORY_REGION|：}
+	メモリの割り当て
 \end{description}
 
 KVMが特権命令を検知すると、\verb|/dev/kvm|経由でその理由が通知される。これをVM EXITと呼ぶ。処理がKVMに戻ってゲストの命令が再度実行されることをVM ENTERと呼ぶ。VM EXIT時の理由としては以下のようなものがある。
 
 \begin{description}
-  \item{\verb|KVM_EXIT_FAIL_ENTRY|：}
-    よく分からんが実行できなかった！という理由。理由ではない。
-  \item{\verb|KVM_EXIT_IO|：}
-    KVMだけではハンドルできないIOをVCPUが実行しようとした場合。これは分かる。
-  \item{\verb|KVM_EXIT_MMIO|：}
-    \verb|KVM_EXIT_IO|のMMIO版
-  \item{\verb|KVM_EXIT_SYSTEM_EVENT|：}
-    アーキテクチャ依存のイベント発生時。ARMのハイパーバイザコール（HVC）とか。
+	\item{\verb|KVM_EXIT_FAIL_ENTRY|：}
+	よく分からんが実行できなかった！という理由。理由ではない。
+	\item{\verb|KVM_EXIT_IO|：}
+	KVMだけではハンドルできないIOをVCPUが実行しようとした場合。これは分かる。
+	\item{\verb|KVM_EXIT_MMIO|：}
+	\verb|KVM_EXIT_IO|のMMIO版
+	\item{\verb|KVM_EXIT_SYSTEM_EVENT|：}
+	アーキテクチャ依存のイベント発生時。ARMのハイパーバイザコール（HVC）とか。
 \end{description}
 
 \subsection{paravirtual driver}
@@ -808,10 +808,10 @@ LXDについて本家ページを元に少し説明する。LXDとはLinux Conta
 \noindent
 主要機能は以下の通りである。
 \begin{itemize}
-  \item 非特権コンテナ、リソース制限を用いたセキュアなデザイン
-  \item 直感的なコマンドラインとREST API
-  \item イメージベースのコンテナ構築
-  \item ライブマイグレーション
+	\item 非特権コンテナ、リソース制限を用いたセキュアなデザイン
+	\item 直感的なコマンドラインとREST API
+	\item イメージベースのコンテナ構築
+	\item ライブマイグレーション
 \end{itemize}
 
 \noindent
@@ -879,11 +879,11 @@ $ lxc list
 \section*{まっきー}
 
 \begin{quote}
-あらゆる「民主的」潮流、つまりこのばあい、「支配」の極小化をめざす潮流は、中途半端な状態とならざるをえない。「権利の平等」と恣意にたいする法的保証への要求とは、（中略）行政の形式的・合理的な「没主観性」を要求する。しかしながら、もしも「エートス」が、ある個々の問題で大衆の心をとらえるならば、エートス（中略）のもつ、具体的なケースと具体的な人物に志向した実質的「正義」への要請は、官僚制的行政の形式主義および規則にしばられた冷酷な「没主観性」と不可避的に衝突し、さらにこのような理由から、合理的に要求されてきたものを感情的に拒否せざるをえないことになるのである。
+	あらゆる「民主的」潮流、つまりこのばあい、「支配」の極小化をめざす潮流は、中途半端な状態とならざるをえない。「権利の平等」と恣意にたいする法的保証への要求とは、（中略）行政の形式的・合理的な「没主観性」を要求する。しかしながら、もしも「エートス」が、ある個々の問題で大衆の心をとらえるならば、エートス（中略）のもつ、具体的なケースと具体的な人物に志向した実質的「正義」への要請は、官僚制的行政の形式主義および規則にしばられた冷酷な「没主観性」と不可避的に衝突し、さらにこのような理由から、合理的に要求されてきたものを感情的に拒否せざるをえないことになるのである。
 \end{quote}
 
 \begin{flushright}
-『権力と支配』マックス・ヴェーバー（濱嶋朗　訳）
+	『権力と支配』マックス・ヴェーバー（濱嶋朗　訳）
 \end{flushright}
 
 前回は延々といろいろあとがきを書いたのだが、今回はあまり本が読めなかったのでそれほど書くことが無かった。そういえば、久しぶりに『エウレカセブン』なんて聞いたな。最終的にこのあとがきは読書感想文になるだろうと思う。
@@ -912,15 +912,15 @@ KVMは僕の趣味で書いただけなので読まなくてよい。が、コ�
 \thispagestyle{empty}
 \vspace*{\stretch{1}}
 \begin{flushright}
-\begin{minipage}{0.5\hsize}
-\begin{description}
-  \item{著者：}こじろー・まっきー
-  \item{挿絵：}だーまり
-  \item{初版発行：}2015年8月14日
-  \item{第2版発行：}2016年8月14日
-  \item{印刷：}POPLS (\url{http://www.inv.co.jp/~popls/})
-\end{description}
-\end{minipage}
+	\begin{minipage}{0.5\hsize}
+		\begin{description}
+			\item{著者：}こじろー・まっきー
+			\item{挿絵：}だーまり
+			\item{初版発行：}2015年8月14日
+			\item{第2版発行：}2016年8月14日
+			\item{印刷：}POPLS (\url{http://www.inv.co.jp/~popls/})
+		\end{description}
+	\end{minipage}
 \end{flushright}
 
 \mbox{}

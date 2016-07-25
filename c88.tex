@@ -2,12 +2,21 @@
 
 \usepackage[dvipdfmx]{graphicx}
 \usepackage{listings}
+\usepackage{inconsolata}
 \usepackage{url}
 
-\lstset{basicstyle={\footnotesize\ttfamily}}
+\renewcommand{\kanjifamilydefault}{\gtdefault}
+\renewcommand{\familydefault}{\sfdefault}
+\renewcommand{\baselinestretch}{1.11}
 
-%\setlength{\textwidth}{\fullwidth}
-%\setlength{\evensidemargin}{\oddsidemargin}
+\lstset{basicstyle={\footnotesize\ttfamily}}
+\lstset{frame=single}
+\lstset{breaklines=true}
+\lstset{lineskip=-1.5pt}
+\lstset{framesep=5pt}
+
+\setlength{\textwidth}{\fullwidth}
+\setlength{\evensidemargin}{\oddsidemargin}
 
 \begin{document}
 
@@ -912,7 +921,7 @@ KVMは僕の趣味で書いただけなので読まなくてよい。が、コ�
 \thispagestyle{empty}
 \vspace*{\stretch{1}}
 \begin{flushright}
-	\begin{minipage}{0.5\hsize}
+	\begin{minipage}{0.6\hsize}
 		\begin{description}
 			\item{著者：}こじろー・まっきー
 			\item{挿絵：}だーまり
